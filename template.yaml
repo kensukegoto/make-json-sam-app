@@ -17,13 +17,7 @@ Resources:
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
       Events:
-        MakeJsonAPI:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        ScheduleEvent:
+          Type: Schedule
           Properties:
-            Path: /fortune-telling
-            Method: get
-
-Outputs:
-  MakeJsonApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/fortune-telling/"
+            Schedule: cron(0/1 * * * ? *)

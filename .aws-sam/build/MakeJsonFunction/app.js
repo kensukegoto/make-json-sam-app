@@ -1,33 +1,58 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
-let response;
-
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- * 
- */
+const axios = require('axios'); 
+const aws = require('aws-sdk');
+const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 exports.lambdaHandler = async (event, context) => {
-    try {
-        // const ret = await axios(url);
-        response = {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'hello world',
-                // location: ret.data.trim()
-            })
-        }
-    } catch (err) {
-        console.log(err);
-        return err;
-    }
+  const dataUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
 
-    return response
+  const response = await axios.get(dataUrl);
+  const dataCsv = response.data;
+  const dataJson = parseCsv(dataCsv);
+
+  const bucketName = 'make-json-sam-app-goto-20210615';
+
+  const params = {
+    Body: JSON.stringify(dataJson), 
+    Bucket: bucketName,
+    Key: "coronadata.json"
+   };
+
+  await s3.putObject(params).promise();
+
+  return {
+    'statusCode': 200,
+    'body': JSON.stringify(dataJson)
+  }
+
 };
+
+function parseCsv(dataCsv) {
+
+  let data = [];
+  let header = [];
+  let japan = [];
+
+  const row = dataCsv.split('\n');
+
+  for(let i = 0, l = row.length; i < l; i++){
+    const rowArray = row[i].split(',');
+    if(i === 0 ) {
+      header = rowArray;
+    }
+    if(rowArray[1] === 'Japan'){
+      japan = rowArray;
+    }
+  }
+
+  for(let i = 0, l = header.length; i < l; i++){
+    if(i < 4) {
+      continue;
+    }
+    data.push([
+      header[i],
+      +japan[i],
+    ])
+  }
+
+
+  return data;
+}

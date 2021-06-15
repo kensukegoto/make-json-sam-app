@@ -1,5 +1,15 @@
 # make-json-sam-app
 
+  const bucketName = 'make-json-sam-app-goto-20210615';
+
+  // var params = {
+  //   Body: JSON.stringify(dataJson), 
+  //   Bucket: bucketName,
+  //   Key: "coronadata.json"
+  //  };
+
+  // await s3.putObject(params).promise();
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
 - hello-world - Code for the application's Lambda function.
