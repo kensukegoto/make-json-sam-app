@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'make-json-sam-app
+
+  Sample SAM Template for make-json-sam-app
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  MakeJsonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: MakeJsonFunction
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      Events:
+        MakeJsonAPI:
+          Type: Api
+          Properties:
+            Path: /fortune-telling
+            Method: get
+Outputs:
+  MakeJsonApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/fortune-telling/
